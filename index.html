@@ -2,27 +2,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Read Aloud Using jQuery</title>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<title>GPT-3 Text Generation</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://cdn.jsdelivr.net/npm/@openai/api@1.4.0/dist/web.min.js"></script>
+	<style>
+		label, input, textarea { display: block; margin-bottom: 10px; }
+	</style>
 </head>
 <body>
-	<label for="message">Enter text to read aloud:</label><br>
-	<textarea id="message" rows="5" cols="50"></textarea><br>
-	<button id="speak-btn">Speak</button><br>
+	<h1>GPT-3 Text Generation</h1>
+
+	<form id="input-form">
+		<fieldset>
+			<legend>Generate Text</legend>
+			<div>
+				<label for="prompt-input">Prompt:</label>
+				<textarea id="prompt-input" rows="5" cols="50" required></textarea>
+			</div>
+			<div>
+				<label for="model-select">Model:</label>
+				<select id="model-select">
+					<option value="davinci">Davinci</option>
+					<option value="curie">Curie</option>
+					<option value="babbage">Babbage</option>
+					<option value="ada">Ada</option>
+				</select>
+			</div>
+			<div>
+				<label for="temperature-input">Temperature:</label>
+				<input type="number" id="temperature-input" value="0.7" min="0" max="1" step="0.1">
+			</div>
+			<button type="submit">Generate Text</button>
+		</fieldset>
+	</form>
+
+	<div id="output-container" style="display: none;">
+		<h2>Generated Text</h2>
+		<div id="output"></div>
+		<button id="new-prompt-button">Generate New Text</button>
+	</div>
 
 	<script>
-	$(document).ready(function() {
-		$("#speak-btn").click(function() {
-			const message = $("#message").val();
-			const speech = new SpeechSynthesisUtterance();
-			speech.lang = "en-US";
-			speech.text = message;
-			speech.volume = 1;
-			speech.rate = 1;
-			speech.pitch = 1;
-			window.speechSynthesis.speak(speech);
+		const openai = window.openai;
+		const apiKey = 'YOUR_API_KEY_HERE'; // Replace with your OpenAI API key
+
+		openai.apiKey = apiKey;
+
+		const form = document.getElementById('input-form');
+		const promptInput = document.getElementById('prompt-input');
+		const modelSelect = document.getElementById('model-select');
+		const temperatureInput = document.getElementById('temperature-input');
+		const outputContainer = document.getElementById('output-container');
+		const output = document.getElementById('output');
+		const newPromptButton = document.getElementById('new-prompt-button');
+
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+
+			const prompt = promptInput.value;
+			const model = modelSelect.value;
+			const temperature = parseFloat(temperatureInput.value);
+
+			output.innerHTML = 'Generating...';
+
+			try {
+				const result = await openai.complete({
+					model,
+					prompt,
+					temperature,
+					maxTokens: 100,
+					n: 1,
+					stream: false,
+				});
+
+				const text = result.choices[0].text;
+
+				output.innerHTML = text;
+				outputContainer.style.display = 'block';
+			} catch (error) {
+				output.innerHTML = `Error: ${error.message}`;
+				outputContainer.style.display = 'block';
+			}
 		});
-	});
+
+		newPromptButton.addEventListener('click', () => {
+			promptInput.value = '';
+			output.innerHTML = '';
+			outputContainer.style.display = 'none';
+		});
 	</script>
 </body>
 </html>
