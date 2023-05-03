@@ -1,1 +1,28 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Read Aloud Using jQuery</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+	<label for="message">Enter text to read aloud:</label><br>
+	<textarea id="message" rows="5" cols="50"></textarea><br>
+	<button id="speak-btn">Speak</button><br>
+
+	<script>
+	$(document).ready(function() {
+		$("#speak-btn").click(function() {
+			const message = $("#message").val();
+			const speech = new SpeechSynthesisUtterance();
+			speech.lang = "en-US";
+			speech.text = message;
+			speech.volume = 1;
+			speech.rate = 1;
+			speech.pitch = 1;
+			window.speechSynthesis.speak(speech);
+		});
+	});
+	</script>
+</body>
+</html>
